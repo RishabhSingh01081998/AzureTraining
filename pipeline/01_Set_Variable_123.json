@@ -35,13 +35,13 @@
 				"type": "SetVariable",
 				"dependsOn": [
 					{
-						"activity": "Set Length",
+						"activity": "Set Breadth",
 						"dependencyConditions": [
 							"Succeeded"
 						]
 					},
 					{
-						"activity": "Set Breadth",
+						"activity": "Set Length123",
 						"dependencyConditions": [
 							"Succeeded"
 						]
