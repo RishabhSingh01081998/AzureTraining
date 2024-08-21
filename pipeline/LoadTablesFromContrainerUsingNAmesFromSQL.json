@@ -42,7 +42,14 @@
 					"secureOutput": false,
 					"secureInput": false
 				},
-				"userProperties": []
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "AllFileNames",
+					"value": {
+						"value": "@variables('fileName')",
+						"type": "Expression"
+					}
+				}
 			},
 			{
 				"name": "ForEach1",
@@ -66,7 +73,7 @@
 							"typeProperties": {
 								"variableName": "fileName",
 								"value": {
-									"value": "@item().value",
+									"value": "@item().files_to_copy",
 									"type": "Expression"
 								}
 							}
