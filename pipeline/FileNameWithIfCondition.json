@@ -1,78 +1,7 @@
 {
-	"name": "NameAndFileSize",
+	"name": "FileNameWithIfCondition",
 	"properties": {
 		"activities": [
-			{
-				"name": "ForEach1",
-				"type": "ForEach",
-				"dependsOn": [
-					{
-						"activity": "GetChildData",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					}
-				],
-				"userProperties": [],
-				"typeProperties": {
-					"items": {
-						"value": "@activity('GetChildData').output.itemName",
-						"type": "Expression"
-					},
-					"activities": [
-						{
-							"name": "If Condition1",
-							"type": "IfCondition",
-							"dependsOn": [],
-							"userProperties": [],
-							"typeProperties": {
-								"expression": {
-									"value": "@contains(item().name,'csv')",
-									"type": "Expression"
-								},
-								"ifFalseActivities": [
-									{
-										"name": "Set variable2",
-										"type": "SetVariable",
-										"dependsOn": [],
-										"policy": {
-											"secureOutput": false,
-											"secureInput": false
-										},
-										"userProperties": [],
-										"typeProperties": {
-											"variableName": "OtherFileNames",
-											"value": {
-												"value": "@activity('GetChildData').output.itemName",
-												"type": "Expression"
-											}
-										}
-									}
-								],
-								"ifTrueActivities": [
-									{
-										"name": "Set variable1",
-										"type": "SetVariable",
-										"dependsOn": [],
-										"policy": {
-											"secureOutput": false,
-											"secureInput": false
-										},
-										"userProperties": [],
-										"typeProperties": {
-											"variableName": "CSVFileNames",
-											"value": {
-												"value": "@activity('GetChildData').output.itemName",
-												"type": "Expression"
-											}
-										}
-									}
-								]
-							}
-						}
-					]
-				}
-			},
 			{
 				"name": "GetChildData",
 				"type": "GetMetadata",
@@ -101,16 +30,130 @@
 						"type": "DelimitedTextReadSettings"
 					}
 				}
+			},
+			{
+				"name": "ForEach1",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "GetChildData",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('GetChildData').output.childItems",
+						"type": "Expression"
+					},
+					"activities": [
+						{
+							"name": "If Condition1",
+							"type": "IfCondition",
+							"dependsOn": [],
+							"userProperties": [],
+							"typeProperties": {
+								"expression": {
+									"value": "@contains(item().name,'.csv')",
+									"type": "Expression"
+								},
+								"ifFalseActivities": [
+									{
+										"name": "Other files Append",
+										"type": "AppendVariable",
+										"dependsOn": [],
+										"userProperties": [],
+										"typeProperties": {
+											"variableName": "OtherFileNames",
+											"value": {
+												"value": "@item().name",
+												"type": "Expression"
+											}
+										}
+									}
+								],
+								"ifTrueActivities": [
+									{
+										"name": "CSV Append Variable",
+										"type": "AppendVariable",
+										"dependsOn": [],
+										"userProperties": [],
+										"typeProperties": {
+											"variableName": "CSVFileNames",
+											"value": {
+												"value": "@item().name",
+												"type": "Expression"
+											}
+										}
+									}
+								]
+							}
+						}
+					]
+				}
+			},
+			{
+				"name": "CSV All File Names",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "ForEach1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "AllCSVFileNames",
+					"value": {
+						"value": "@variables('CSVFileNames')",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Other All file names",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "ForEach1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "AllOtherFileNames",
+					"value": {
+						"value": "@variables('OtherFileNames')",
+						"type": "Expression"
+					}
+				}
 			}
 		],
 		"variables": {
 			"CSVFileNames": {
 				"type": "Array"
 			},
-			"PDFFileNames": {
+			"OtherFileNames": {
 				"type": "Array"
 			},
-			"OtherFileNames": {
+			"AllCSVFileNames": {
+				"type": "Array"
+			},
+			"AllOtherFileNames": {
 				"type": "Array"
 			}
 		},
