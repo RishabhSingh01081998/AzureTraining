@@ -1,5 +1,5 @@
 {
-	"name": "LoadTablesFromContrainerUsingNAmesFromSQL",
+	"name": "ForEach_Concat_TwoValues",
 	"properties": {
 		"activities": [
 			{
@@ -17,38 +17,15 @@
 				"typeProperties": {
 					"source": {
 						"type": "AzureSqlSource",
+						"sqlReaderQuery": "select top 10 name, email from [dbo].[users]",
 						"queryTimeout": "02:00:00",
 						"partitionOption": "None"
 					},
 					"dataset": {
-						"referenceName": "DS_AzureSQL_Config",
+						"referenceName": "DS_AzureSQL_users",
 						"type": "DatasetReference"
 					},
 					"firstRowOnly": false
-				}
-			},
-			{
-				"name": "Set variable1",
-				"type": "SetVariable",
-				"dependsOn": [
-					{
-						"activity": "ForEach1",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					}
-				],
-				"policy": {
-					"secureOutput": false,
-					"secureInput": false
-				},
-				"userProperties": [],
-				"typeProperties": {
-					"variableName": "AllFileNames",
-					"value": {
-						"value": "@variables('fileName')",
-						"type": "Expression"
-					}
 				}
 			},
 			{
@@ -75,24 +52,42 @@
 							"dependsOn": [],
 							"userProperties": [],
 							"typeProperties": {
-								"variableName": "fileName",
+								"variableName": "NameAndEmailFromLookUpForEach",
 								"value": {
-									"value": "@item().files_to_copy",
+									"value": "@concat(item().name,'-',item().email)",
 									"type": "Expression"
 								}
 							}
 						}
 					]
 				}
+			},
+			{
+				"name": "Set variable1",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "ForEach1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "ConcatenatedValue",
+					"value": {
+						"value": "@variables('NameAndEmailFromLookUpForEach')",
+						"type": "Expression"
+					}
+				}
 			}
 		],
 		"variables": {
-			"fileName": {
-				"type": "Array"
-			},
-			"AllFileNames": {
-				"type": "Array"
-			},
 			"NameAndEmailFromLookUpForEach": {
 				"type": "Array"
 			},
