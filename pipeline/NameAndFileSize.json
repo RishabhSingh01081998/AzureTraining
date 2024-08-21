@@ -5,40 +5,69 @@
 			{
 				"name": "ForEach1",
 				"type": "ForEach",
-				"state": "Inactive",
-				"onInactiveMarkAs": "Succeeded",
-				"dependsOn": [],
+				"dependsOn": [
+					{
+						"activity": "GetChildData",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
 				"userProperties": [],
 				"typeProperties": {
 					"items": {
-						"value": "@activity('GetChildData').output",
+						"value": "@activity('GetChildData').output.itemName",
 						"type": "Expression"
 					},
 					"activities": [
 						{
-							"name": "Get Metadata1",
-							"type": "GetMetadata",
+							"name": "If Condition1",
+							"type": "IfCondition",
 							"dependsOn": [],
-							"policy": {
-								"timeout": "0.12:00:00",
-								"retry": 0,
-								"retryIntervalInSeconds": 30,
-								"secureOutput": false,
-								"secureInput": false
-							},
 							"userProperties": [],
 							"typeProperties": {
-								"fieldList": [
-									"itemName",
-									"lastModified"
-								],
-								"storeSettings": {
-									"type": "AzureBlobFSReadSettings",
-									"enablePartitionDiscovery": false
+								"expression": {
+									"value": "@contains(item().name,'csv')",
+									"type": "Expression"
 								},
-								"formatSettings": {
-									"type": "DelimitedTextReadSettings"
-								}
+								"ifFalseActivities": [
+									{
+										"name": "Set variable2",
+										"type": "SetVariable",
+										"dependsOn": [],
+										"policy": {
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"variableName": "OtherFileNames",
+											"value": {
+												"value": "@activity('GetChildData').output.itemName",
+												"type": "Expression"
+											}
+										}
+									}
+								],
+								"ifTrueActivities": [
+									{
+										"name": "Set variable1",
+										"type": "SetVariable",
+										"dependsOn": [],
+										"policy": {
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"variableName": "CSVFileNames",
+											"value": {
+												"value": "@activity('GetChildData').output.itemName",
+												"type": "Expression"
+											}
+										}
+									}
+								]
 							}
 						}
 					]
@@ -58,12 +87,11 @@
 				"userProperties": [],
 				"typeProperties": {
 					"dataset": {
-						"referenceName": "DS_adls_rishabh01081998",
+						"referenceName": "DS_ADLS_copyallFiles_retaildb_userscsv",
 						"type": "DatasetReference"
 					},
 					"fieldList": [
-						"itemName",
-						"itemType"
+						"childItems"
 					],
 					"storeSettings": {
 						"type": "AzureBlobFSReadSettings",
@@ -76,7 +104,13 @@
 			}
 		],
 		"variables": {
-			"FileName": {
+			"CSVFileNames": {
+				"type": "Array"
+			},
+			"PDFFileNames": {
+				"type": "Array"
+			},
+			"OtherFileNames": {
 				"type": "Array"
 			}
 		},
