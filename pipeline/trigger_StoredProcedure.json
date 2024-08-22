@@ -47,29 +47,9 @@
 					},
 					"activities": [
 						{
-							"name": "Append variable1",
-							"type": "AppendVariable",
-							"dependsOn": [],
-							"userProperties": [],
-							"typeProperties": {
-								"variableName": "ValueFromInactiveCustomerTable",
-								"value": {
-									"value": "@item().id",
-									"type": "Expression"
-								}
-							}
-						},
-						{
 							"name": "Stored procedure1",
 							"type": "SqlServerStoredProcedure",
-							"dependsOn": [
-								{
-									"activity": "Append variable1",
-									"dependencyConditions": [
-										"Succeeded"
-									]
-								}
-							],
+							"dependsOn": [],
 							"policy": {
 								"timeout": "0.12:00:00",
 								"retry": 0,
@@ -83,7 +63,7 @@
 								"storedProcedureParameters": {
 									"id": {
 										"value": {
-											"value": "@int(string(variables('ValueFromInactiveCustomerTable')))",
+											"value": "@item().id",
 											"type": "Expression"
 										},
 										"type": "Int16"
