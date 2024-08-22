@@ -1,0 +1,31 @@
+{
+	"name": "DS_ADLS_rishabh01081998_Parameterized",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_AzureDataLakeStorage_rishabh01081998",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"fileNameDS": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": {
+					"value": "@dataset().fileNameDS",
+					"type": "Expression"
+				},
+				"fileSystem": "retaildb"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": []
+	}
+}
