@@ -3,6 +3,35 @@
 	"properties": {
 		"activities": [
 			{
+				"name": "Get Metadata1",
+				"type": "GetMetadata",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataset": {
+						"referenceName": "DS_ADLS_copyallFiles_retaildb_userscsv",
+						"type": "DatasetReference"
+					},
+					"fieldList": [
+						"childItems"
+					],
+					"storeSettings": {
+						"type": "AzureBlobFSReadSettings",
+						"enablePartitionDiscovery": false
+					},
+					"formatSettings": {
+						"type": "DelimitedTextReadSettings"
+					}
+				}
+			},
+			{
 				"name": "ForEach1",
 				"type": "ForEach",
 				"dependsOn": [
@@ -16,19 +45,62 @@
 				"userProperties": [],
 				"typeProperties": {
 					"items": {
-						"value": "@concat(activity('Get Metadata1').output.itemName,'|',activity('Get Metadata1').output.itemType)",
+						"value": "@activity('Get Metadata1').output.childItems",
 						"type": "Expression"
 					},
 					"activities": [
 						{
-							"name": "Append variable1",
-							"type": "AppendVariable",
+							"name": "Get Metadata2",
+							"type": "GetMetadata",
 							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
 							"userProperties": [],
 							"typeProperties": {
-								"variableName": "FileData",
+								"dataset": {
+									"referenceName": "DS_ADLS_rishabh01081998_Parameterized",
+									"type": "DatasetReference",
+									"parameters": {
+										"fileNameDS": {
+											"value": "@item().name",
+											"type": "Expression"
+										}
+									}
+								},
+								"fieldList": [
+									"itemName",
+									"size"
+								],
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "DelimitedTextReadSettings"
+								}
+							}
+						},
+						{
+							"name": "Append variable1",
+							"type": "AppendVariable",
+							"dependsOn": [
+								{
+									"activity": "Get Metadata2",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"userProperties": [],
+							"typeProperties": {
+								"variableName": "FileNameWithSize",
 								"value": {
-									"value": "@item()",
+									"value": "@concat(\n    string(activity('Get Metadata2').output.itemName),\n    ' | ',\n    string(activity('Get Metadata2').output.size)\n    )",
 									"type": "Expression"
 								}
 							}
@@ -53,49 +125,19 @@
 				},
 				"userProperties": [],
 				"typeProperties": {
-					"variableName": "FinalFormat",
+					"variableName": "FinalOutput",
 					"value": {
-						"value": "@variables('FileData')",
+						"value": "@variables('FileNameWithSize')",
 						"type": "Expression"
-					}
-				}
-			},
-			{
-				"name": "Get Metadata1",
-				"type": "GetMetadata",
-				"dependsOn": [],
-				"policy": {
-					"timeout": "0.12:00:00",
-					"retry": 0,
-					"retryIntervalInSeconds": 30,
-					"secureOutput": false,
-					"secureInput": false
-				},
-				"userProperties": [],
-				"typeProperties": {
-					"dataset": {
-						"referenceName": "DS_ADLS_copyallFiles_retaildb_userscsv",
-						"type": "DatasetReference"
-					},
-					"fieldList": [
-						"itemName",
-						"itemType"
-					],
-					"storeSettings": {
-						"type": "AzureBlobFSReadSettings",
-						"enablePartitionDiscovery": false
-					},
-					"formatSettings": {
-						"type": "DelimitedTextReadSettings"
 					}
 				}
 			}
 		],
 		"variables": {
-			"FileData": {
+			"FileNameWithSize": {
 				"type": "Array"
 			},
-			"FinalFormat": {
+			"FinalOutput": {
 				"type": "Array"
 			}
 		},
