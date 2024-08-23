@@ -1,0 +1,50 @@
+{
+	"name": "Execute Pipeline",
+	"properties": {
+		"activities": [
+			{
+				"name": "JSON To CSV",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "JSONToCSV",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "Copy to Azure SQL",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "JSON To CSV",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Copy to Azure SQL",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			}
+		],
+		"folder": {
+			"name": "Execute Pipeline"
+		},
+		"annotations": []
+	}
+}
