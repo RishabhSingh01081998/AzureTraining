@@ -1,0 +1,37 @@
+{
+	"name": "DS_ADLS_customersJSON",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_AzureDataLakeStorage_rishabh01081998",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileSystem": "customerjson"
+			}
+		},
+		"schema": {
+			"type": "object",
+			"properties": {
+				"id": {
+					"type": "integer"
+				},
+				"age": {
+					"type": "integer"
+				},
+				"gender": {
+					"type": "string"
+				},
+				"designation": {
+					"type": "string"
+				},
+				"salary": {
+					"type": "integer"
+				}
+			}
+		}
+	}
+}
