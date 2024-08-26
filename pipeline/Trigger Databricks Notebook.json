@@ -15,10 +15,10 @@
 				},
 				"userProperties": [],
 				"typeProperties": {
-					"notebookPath": "/Users/itsrishabhsingh1@gmail.com/Read JSON"
+					"notebookPath": "/Users/itsrishabhsingh1@gmail.com/JSONNoteBook"
 				},
 				"linkedServiceName": {
-					"referenceName": "LS_Databricks",
+					"referenceName": "LS_AzureDatabricks",
 					"type": "LinkedServiceReference"
 				}
 			}
