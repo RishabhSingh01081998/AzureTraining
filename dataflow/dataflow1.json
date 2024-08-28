@@ -22,7 +22,7 @@
 			"sinks": [
 				{
 					"dataset": {
-						"referenceName": "DS_ADLS_DataFlow_Join_Store_As_JSON",
+						"referenceName": "DS_ADLS_DataFlow_Join_Save_As_CSV",
 						"type": "DatasetReference"
 					},
 					"name": "StoreJoinOutput"

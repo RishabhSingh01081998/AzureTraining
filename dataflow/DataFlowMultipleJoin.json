@@ -1,0 +1,137 @@
+{
+	"name": "DataFlowMultipleJoin",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "DS_DF_Employee",
+						"type": "DatasetReference"
+					},
+					"name": "Employee"
+				},
+				{
+					"dataset": {
+						"referenceName": "DS_DF_Order",
+						"type": "DatasetReference"
+					},
+					"name": "Order"
+				},
+				{
+					"dataset": {
+						"referenceName": "DS_DF_OrderDetail",
+						"type": "DatasetReference"
+					},
+					"name": "OrderDetail"
+				},
+				{
+					"dataset": {
+						"referenceName": "DS_DF_Customer",
+						"type": "DatasetReference"
+					},
+					"name": "Customer"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "DS_ADLS_DataFlow_Join_Save_As_CSV",
+						"type": "DatasetReference"
+					},
+					"name": "Output"
+				}
+			],
+			"transformations": [
+				{
+					"name": "EmployeeOrder"
+				},
+				{
+					"name": "EmployeeOrderOrderDetail"
+				},
+				{
+					"name": "EmployeeOrderOrderDetailCustomer"
+				},
+				{
+					"name": "EmployeeCustomerName"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          employee_id as integer,",
+				"          employee_name as string,",
+				"          experience as integer,",
+				"          salary as decimal(10,2)",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> Employee",
+				"source(output(",
+				"          order_id as integer,",
+				"          order_date as date,",
+				"          employee_id as integer",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> Order",
+				"source(output(",
+				"          order_detail_id as integer,",
+				"          order_id as integer,",
+				"          product_id as integer,",
+				"          customer_id as integer,",
+				"          quantity_sold as integer",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> OrderDetail",
+				"source(output(",
+				"          customer_id as integer,",
+				"          name as string,",
+				"          dob as date,",
+				"          email as string,",
+				"          gender as string,",
+				"          country as string,",
+				"          region as string,",
+				"          city as string,",
+				"          asset as integer,",
+				"          marital_status as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> Customer",
+				"Employee, Order join(Employee@employee_id == Order@employee_id,",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> EmployeeOrder",
+				"EmployeeOrder, OrderDetail join(Order@order_id == OrderDetail@order_id,",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> EmployeeOrderOrderDetail",
+				"EmployeeOrderOrderDetail, Customer join(OrderDetail@customer_id == Customer@customer_id,",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> EmployeeOrderOrderDetailCustomer",
+				"EmployeeOrderOrderDetailCustomer select(mapColumn(",
+				"          employee_name,",
+				"          customer_name = name",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> EmployeeCustomerName",
+				"EmployeeCustomerName sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> Output"
+			]
+		}
+	}
+}
