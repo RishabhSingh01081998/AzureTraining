@@ -1,0 +1,82 @@
+{
+	"name": "dataflow1",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "DS_DF_Employee",
+						"type": "DatasetReference"
+					},
+					"name": "Employee"
+				},
+				{
+					"dataset": {
+						"referenceName": "DS_DF_Order",
+						"type": "DatasetReference"
+					},
+					"name": "Order"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "DS_ADLS_DataFlow_Join_Store_As_JSON",
+						"type": "DatasetReference"
+					},
+					"name": "StoreJoinOutput"
+				}
+			],
+			"transformations": [
+				{
+					"name": "EmployeeOrderJoin"
+				},
+				{
+					"name": "SelectingOnlyRequiredColumns"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          employee_id as integer,",
+				"          employee_name as string,",
+				"          experience as integer,",
+				"          salary as decimal(10,2)",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> Employee",
+				"source(output(",
+				"          order_id as integer,",
+				"          order_date as date,",
+				"          employee_id as integer",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> Order",
+				"Employee, Order join(Employee@employee_id == Order@employee_id,",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> EmployeeOrderJoin",
+				"EmployeeOrderJoin select(mapColumn(",
+				"          employee_id = Employee@employee_id,",
+				"          employee_name,",
+				"          order_id,",
+				"          order_date",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> SelectingOnlyRequiredColumns",
+				"SelectingOnlyRequiredColumns sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> StoreJoinOutput"
+			]
+		}
+	}
+}
